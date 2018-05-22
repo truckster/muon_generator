@@ -15,4 +15,4 @@ event_string_data = IO.arrange_data_to_string(data_new)
 
 for event in range(100):
     # IO.write_single_mult_files(event, file_path + "test" + str(event) + ".txt", event_string_data, 2, header, footer)
-    IO.write_single_event_script(event, file_path + "scripts/" + "script" + str(event) + ".sh", data_new, 2)
+    IO.write_single_event_script_local(event, file_path + "scripts_test/" + "script" + str(event) + ".sh", data_new, 2)

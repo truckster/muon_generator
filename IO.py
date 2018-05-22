@@ -108,16 +108,16 @@ def write_single_mult_files(file_number, output_path, event_array, muon_multipli
         out_file.write(line)
 
 
-def write_single_event_script(file_number, path, event_class_array, multiplicity):
+def write_single_event_script_server(file_number, path, event_class_array, multiplicity):
     out_file = open(path, 'w')
     out_file.write("#!/bin/bash" + '\n')
     out_file.write("export JUNO_OFFLINE_OFF=1" + '\n')
     out_file.write("source /afs/ihep.ac.cn/soft/juno/JUNO-ALL-SLC6/Pre-Release/J17v1r2-branch/setup.sh" + '\n')
     out_file.write("source /junofs/users/mueller/J17v1r1/offline/Examples/Tutorial/cmt/setup.sh" + '\n')
     out_file.write("cd /junofs/users/mueller/output/2mult_xxl/" + '\n')
-    out_file.write("python /junofs/users/mueller/J17v1r1/offline/Examples/Tutorial/share/tut_detsim.py --evtmax 1"
-                   " --seed $(($1)) --output mu-$(($1)).root --user-output user-mu-$(($1)).root --no-gdml "
-                   "--pmt20inch --no-pmt3inch --optical --detoption Acrylic --pmt-hit-type 2 "
+    out_file.write("python /junofs/users/mueller/J17v1r1/offline/Examples/Tutorial/share/tut_detsim.py --evtmax 1 "
+                   "--seed $(($1)) --output mu-$(($1)).root --user-output user-mu-$(($1)).root --no-gdml "
+                   "--pmt20inch --no-pmt3inch --optical --detoption Acrylic "
                    "--no-anamgr-normal --anamgr-list NormalAnaMgrMin "
                    "--anamgr-list MuProcessAnaMgr --anamgr-list PMTPosAnaMgr gun ")
 
@@ -150,9 +150,43 @@ def write_single_event_script(file_number, path, event_class_array, multiplicity
                           / event_class_array[multiplicity*file_number + i].total_momentum))
 
 
+def write_single_event_script_local(file_number, path, event_class_array, multiplicity):
+    out_file = open(path, 'w')
+    out_file.write("#!/bin/bash" + '\n')
+    out_file.write("source /home/gpu/juno/JUNO-SOFT/setup.sh" + '\n')
+    out_file.write("python /home/gpu/juno/JUNO-SOFT/offline/Examples/Tutorial/share/tut_detsim.py --evtmax 1 "
+                   "--seed 1 --output mu-" + str(file_number) + ".root "
+                   "--user-output user-mu-" + str(file_number) + ".root --no-gdml "
+                   "--pmt20inch --no-pmt3inch --optical --detoption Acrylic "
+                   "--no-anamgr-normal --anamgr-list NormalAnaMgr "
+                   "--anamgr-list MuProcessAnaMgr --anamgr-list PMTPosAnaMgr gun ")
 
+    out_file.write("--particles ")
+    for i in range(multiplicity):
+        if event_class_array[multiplicity*file_number + i].particle < 0:
+            out_file.write("mu+ ")
+        if event_class_array[multiplicity*file_number + i].particle > 0:
+            out_file.write("mu- ")
 
+    out_file.write("--momentums ")
+    for i in range(multiplicity):
+        out_file.write("%.0f " % event_class_array[multiplicity*file_number + i].total_momentum)
 
+    out_file.write("--positions ")
+    for i in range(multiplicity):
+        out_file.write("%.0f %.0f %.0f "
+                       % (event_class_array[multiplicity*file_number + i].x_pos_init,
+                          event_class_array[multiplicity*file_number + i].y_pos_init,
+                          event_class_array[multiplicity*file_number + i].z_pos_init))
 
+    out_file.write("--directions ")
+    for i in range(multiplicity):
+        out_file.write("%.6f %.6f %.6f "
+                       % (event_class_array[multiplicity * file_number + i].x_momentum_init
+                          / event_class_array[multiplicity*file_number + i].total_momentum,
+                          event_class_array[multiplicity * file_number + i].y_momentum_init
+                          / event_class_array[multiplicity*file_number + i].total_momentum,
+                          event_class_array[multiplicity * file_number + i].z_momentum_init
+                          / event_class_array[multiplicity*file_number + i].total_momentum))
 
 
